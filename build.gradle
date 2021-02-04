@@ -1,0 +1,58 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id "io.freefair.lombok" version "5.3.0"
+    id 'jacoco'
+    id "org.sonarqube" version "3.1.1"
+}
+
+java {
+    withSourcesJar()
+}
+targetCompatibility = 11
+
+publishing {
+    publications {
+        myLibrary(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+group = "fs"
+version = 0.1
+// rootProject.name = 'csa4j'
+
+repositories {
+    mavenLocal() // locally built uia-sim
+    jcenter()
+}
+
+dependencies {
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    api 'org.uia.solution:uia-sim:4.0.0-SNAPSHOT'
+    
+    testImplementation 'junit:junit:4.13'
+    testImplementation("org.assertj:assertj-core:3.11.1")
+}
+
+tasks['sonarqube'].dependsOn test
+
+sonarqube {
+    properties {
+        property 'sonar.host.url', 'http://localhost:9000'
+        property 'sonar.login', 'admin'
+        property 'sonar.password', 'a'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport
+    maxParallelForks 1
+}
